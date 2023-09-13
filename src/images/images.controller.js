@@ -21,10 +21,10 @@ function read(req, res, next) {
   res.json({ data: image });
 }
 
-// async function create(req, res) {
-//   const design = await designsService.create(req.body);
-//   res.status(201).json({ design });
-// }
+async function create(req, res) {
+  const images = await imagesService.create(req.body);
+  res.status(201).json({ images });
+}
 
 // async function destroy(req, res) {
 //   await designsService.destroy(res.locals.design.design_id);
@@ -57,11 +57,7 @@ module.exports = {
   list: [asyncErrorBoundary(list)],
   // destroy: [asyncErrorBoundary(productExists), asyncErrorBoundary(destroy)],
   // listOutOfStockCount: asyncErrorBoundary(listOutOfStockCount),
-  // create: [
-  //   hasOnlyValidProperties,
-  //   hasRequiredProperties,
-  //   asyncErrorBoundary(create),
-  // ],
+  create: [asyncErrorBoundary(create)],
   // update: [
   //   asyncErrorBoundary(productExists),
   //   hasOnlyValidProperties,

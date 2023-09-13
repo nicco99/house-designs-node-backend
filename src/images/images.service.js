@@ -4,9 +4,9 @@ function list() {
   return knex("images").select("*");
 }
 
-// function create(product){
-//   return knex("products").insert(product).returning("*").then((createdRecords) => createdRecords[0]);
-// }
+function create(image){
+  return knex("images").insert(image).returning("*").then((createdRecords) => createdRecords[0]);
+}
 
 // function listOutOfStockCount() {
 //   return knex("products")
@@ -58,7 +58,7 @@ module.exports = {
   list,
   read,
   // update,
-  // create,
+  create,
   // destroy,
   // listOutOfStockCount,
   // listPriceSummary,
