@@ -1,7 +1,10 @@
 const knex = require("../db/connection");
 const mapProperties = require("../utils/map-properties");
 function list() {
-  return knex("designs").select("*");
+  return knex("designs")
+    .select("designs.*", "images.src as imageSrc")
+    .leftJoin("images", "designs.design_id", "images.design_id")
+   
 }
 
 function create(design){
