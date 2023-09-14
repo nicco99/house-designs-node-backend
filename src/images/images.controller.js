@@ -1,8 +1,8 @@
 const imagesService = require("./images.service");
+const cloudinary = require("../utils/cloudinary");
 const hasProperties = require("../errors/hasProperties");
 const hasRequiredProperties = hasProperties("image1", "image2");
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
-
 async function imageExists(req, res, next) {
   const image = await imagesService.read(req.params.imageId);
   if (image) {
@@ -12,20 +12,27 @@ async function imageExists(req, res, next) {
   next({ status: 404, message: `image cannot be found.` });
 }
 
-// async function listTotalWeightByProduct(req, res) {
-//   res.json({ data: await productsService.listTotalWeightByProduct() });
-// }
-
 function read(req, res, next) {
   const { image } = res.locals;
   res.json({ data: image });
 }
 
 async function create(req, res) {
-  const images = await imagesService.create(req.body);
-  res.status(201).json({ images });
-}
+  const image = req.files.image;
+  const { design_id } = req.body;
+  try {
+    const result = await cloudinary.uploader.upload(image.tempFilePath, {
+      folder: "designs",
+    });
 
+    const imageData = { src: result.secure_url, design_id: design_id };
+    const savedImage = await imagesService.create(imageData);
+    res.status(201).json({ savedImage });
+  } catch (err) {
+    console.log("Error", err);
+    return res.status(400).json({ error: err });
+  }
+}
 // async function destroy(req, res) {
 //   await designsService.destroy(res.locals.design.design_id);
 //   res.sendStatus(204);

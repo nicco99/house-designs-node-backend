@@ -1,14 +1,16 @@
 const knex = require("../db/connection");
+
 const mapProperties = require("../utils/map-properties");
+
 function list() {
   return knex("images").select("*");
 }
 
-function create(image){
-  image.forEach(element => {
-    return knex("images").insert(element).returning("*").then((createdRecords) => createdRecords[0]);
-  });
- 
+function create(image) {
+  return knex("images")
+    .insert(image)
+    .returning("*")
+    .then((createdRecords) => createdRecords[0]);
 }
 
 // function listOutOfStockCount() {

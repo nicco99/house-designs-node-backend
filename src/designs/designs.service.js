@@ -1,14 +1,21 @@
 const knex = require("../db/connection");
 const mapProperties = require("../utils/map-properties");
+// function list() {
+//   return knex("designs")
+//     .join("images", "designs.design_id", "images.design_id")
+//     .select("designs.*",[ "images.*"]);
+// }
 function list() {
   return knex("designs")
-    .select("designs.*", "images.src as imageSrc")
+    .select("designs.*", knex.raw("ARRAY_AGG(images.src) AS images"))
     .leftJoin("images", "designs.design_id", "images.design_id")
-   
+    .groupBy("designs.design_id");
 }
-
-function create(design){
-  return knex("designs").insert(design).returning("*").then((createdRecords) => createdRecords[0]);
+function create(design) {
+  return knex("designs")
+    .insert(design)
+    .returning("*")
+    .then((createdRecords) => createdRecords[0]);
 }
 
 // function listOutOfStockCount() {
@@ -60,14 +67,22 @@ function read(designId) {
 
       // Group images and features by their respective IDs
       rows.forEach((row) => {
-        if (row.image_id !== null && !designData.images.some((img) => img.image_id === row.image_id)) {
+        if (
+          row.image_id !== null &&
+          !designData.images.some((img) => img.image_id === row.image_id)
+        ) {
           designData.images.push({
             image_id: row.image_id,
             src: row.src,
             // Add other image properties as needed
           });
         }
-        if (row.feature_id !== null && !designData.features.some((feature) => feature.feature_id === row.feature_id)) {
+        if (
+          row.feature_id !== null &&
+          !designData.features.some(
+            (feature) => feature.feature_id === row.feature_id
+          )
+        ) {
           designData.features.push({
             feature_id: row.feature_id,
             name: row.name,
