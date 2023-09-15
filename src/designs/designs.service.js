@@ -42,57 +42,64 @@ function create(design) {
 //     .groupBy("product_title", "product_sku");
 // }
 
-// function destroy(productId) {
-//   return knex("products").where({product_id: productId}).del()
-// }
+function destroy(designId) {
+  return knex("designs").where({ design_id: designId }).del();
+}
 
 function read(designId) {
-  return knex("designs as d")
-    .select("d.*", "i.image_id", "i.src", "f.feature_id", "f.name")
-    .leftJoin("design_images as di", "d.design_id", "di.design_id")
-    .leftJoin("images as i", "di.image_id", "i.image_id")
-    .leftJoin("design_features as df", "d.design_id", "df.design_id")
-    .leftJoin("features as f", "df.feature_id", "f.feature_id")
-    .where({ "d.design_id": designId })
-    .then((rows) => {
-      if (rows.length === 0) {
-        return null; // Handle the case where the design doesn't exist
-      }
+  return knex("designs")
+    .select("designs.*", knex.raw("ARRAY_AGG(images.src) AS images"))
+    .leftJoin("images", "designs.design_id", "images.design_id")
+    .groupBy("designs.design_id")
+    .where({ "designs.design_id": designId })
+    .first(); // Use "designs.design_id" instead of "d.design_id"
 
-      const designData = {
-        ...rows[0], // Copy design properties from the first row
-        images: [],
-        features: [],
-      };
+  // return knex("designs as d")
+  //   .select("d.*", "i.image_id", "i.src", "f.feature_id", "f.name")
+  //   .leftJoin("design_images as di", "d.design_id", "di.design_id")
+  //   .leftJoin("images as i", "di.image_id", "i.image_id")
+  //   .leftJoin("design_features as df", "d.design_id", "df.design_id")
+  //   .leftJoin("features as f", "df.feature_id", "f.feature_id")
+  //   .where({ "d.design_id": designId })
+  //   .then((rows) => {
+  //     if (rows.length === 0) {
+  //       return null; // Handle the case where the design doesn't exist
+  //     }
 
-      // Group images and features by their respective IDs
-      rows.forEach((row) => {
-        if (
-          row.image_id !== null &&
-          !designData.images.some((img) => img.image_id === row.image_id)
-        ) {
-          designData.images.push({
-            image_id: row.image_id,
-            src: row.src,
-            // Add other image properties as needed
-          });
-        }
-        if (
-          row.feature_id !== null &&
-          !designData.features.some(
-            (feature) => feature.feature_id === row.feature_id
-          )
-        ) {
-          designData.features.push({
-            feature_id: row.feature_id,
-            name: row.name,
-            // Add other feature properties as needed
-          });
-        }
-      });
+  //     const designData = {
+  //       ...rows[0], // Copy design properties from the first row
+  //       images: [],
+  //       features: [],
+  //     };
 
-      return designData;
-    });
+  //     // Group images and features by their respective IDs
+  //     rows.forEach((row) => {
+  //       if (
+  //         row.image_id !== null &&
+  //         !designData.images.some((img) => img.image_id === row.image_id)
+  //       ) {
+  //         designData.images.push({
+  //           image_id: row.image_id,
+  //           src: row.src,
+  //           // Add other image properties as needed
+  //         });
+  //       }
+  //       if (
+  //         row.feature_id !== null &&
+  //         !designData.features.some(
+  //           (feature) => feature.feature_id === row.feature_id
+  //         )
+  //       ) {
+  //         designData.features.push({
+  //           feature_id: row.feature_id,
+  //           name: row.name,
+  //           // Add other feature properties as needed
+  //         });
+  //       }
+  //     });
+
+  //     return designData;
+  //   });
 }
 
 // function listPriceSummary() {
@@ -109,7 +116,7 @@ module.exports = {
   read,
   // update,
   create,
-  // destroy,
+  destroy,
   // listOutOfStockCount,
   // listPriceSummary,
   // listTotalWeightByProduct

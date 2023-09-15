@@ -18,7 +18,7 @@ async function designExists(req, res, next) {
 
 function read(req, res, next) {
   const { design } = res.locals;
-  res.json({ data: design });
+  res.json({ design: design });
 }
 
 async function create(req, res) {
@@ -26,10 +26,10 @@ async function create(req, res) {
   res.status(201).json({ design });
 }
 
-// async function destroy(req, res) {
-//   await designsService.destroy(res.locals.design.design_id);
-//   res.sendStatus(204);
-// }
+async function destroy(req, res) {
+  await designsService.destroy(res.locals.design.design_id);
+  res.sendStatus(204);
+}
 
 // async function listOutOfStockCount(req, res, next) {
 //   res.json({ data: await designsService.listOutOfStockCount() });
@@ -55,7 +55,7 @@ async function list(req, res) {
 module.exports = {
   read: [asyncErrorBoundary(designExists), read],
   list: [asyncErrorBoundary(list)],
-  // destroy: [asyncErrorBoundary(productExists), asyncErrorBoundary(destroy)],
+  destroy: [asyncErrorBoundary(designExists), asyncErrorBoundary(destroy)],
   // listOutOfStockCount: asyncErrorBoundary(listOutOfStockCount),
   create: [asyncErrorBoundary(create)],
   // update: [
