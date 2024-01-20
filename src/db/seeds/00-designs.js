@@ -5,11 +5,14 @@
 exports.seed = async function (knex) {
   // Deletes ALL existing entries
   await knex("designs").del();
+  
   await knex("designs").insert([
     {
       no_of_bathrooms: 2,
       no_of_bedrooms: 3,
+      duration: "3 months",
       county: "Nairobi",
+      neighbourhood: "dc",
       location: "Ngong rd",
       property_size: "50000 sq ft",
       property_type: "Bungalow",

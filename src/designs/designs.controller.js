@@ -5,6 +5,7 @@ const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 
 async function designExists(req, res, next) {
   const design = await designsService.read(req.params.designId);
+  console.log(design);
   if (design) {
     res.locals.design = design;
     return next();
