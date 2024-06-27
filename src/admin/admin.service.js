@@ -1,34 +1,23 @@
-const knex = require("../db/fixtures/connection");
+const db = require("../db/dbConnection.js");
 const mapProperties = require("../utils/map-properties");
 function list() {
-  return knex("admins").select(
-    "id",
-    "first_name",
-    "last_name",
-    "email",
-    "p_number"
-  );
+  return "list of admins"
 }
 
 function create(admins) {
-  return knex("admins")
-    .insert(admins)
-    .returning("*")
-    .then((createdRecords) => createdRecords[0]);
+  return 'create an admin'
 }
 
 function update(updatedAdmin) {
-  return knex("admins")
-    .where({ id: updatedAdmin.id })
-    .update(updatedAdmin, "*");
+  return "Update an admin"
 }
 
 function destroy(adminId) {
-  return knex("admins").where({ id: adminId }).del();
+  return "Delete an admin"
 }
 
 function read(adminId) {
-  return knex("admins").select("*").where({ id: adminId }).first();
+  return 'read an admin'
 }
 
 module.exports = {
