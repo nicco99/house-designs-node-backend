@@ -1,6 +1,7 @@
-const dotenv = require("dotenv")
+import dotenv from "dotenv"
+import mysql from "mysql2"
+
 dotenv.config();
-const mysql = require("mysql2");
 
 const db = mysql.createConnection({
   host: "localhost",
@@ -10,9 +11,9 @@ const db = mysql.createConnection({
 }); 
 // const db = mysql.createConnection({
 // host: "13.37.100.57",
-// user: "Nicco99",
+// user: "Nicco99", 
 // password: "Nicco@6612",
 // database: "INKWAVEDB",
 // });
 
-module.exports =  {db} ;
+export default db

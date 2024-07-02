@@ -3,24 +3,22 @@
 ```txt
 
 CREATE TABLE categories (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     name TEXT,
-    description BIGINT
+    description TEXT
 );
 
 CREATE TABLE Plan (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    county TEXT,
-    location TEXT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     plan_size INT,
     plan_name TEXT,
-    no_of_bedrooms BIGINT,
-    no_of_bathrooms BIGINT,
-    category_id BIGINT,
-    class_of_finishes BIGINT,
-    contract_type BIGINT,
+    no_of_bedrooms INT,
+    no_of_bathrooms INT,
+    category_id INT,
+    class_of_finishes INT,
+    contract_type TEXT,
     price_per_sqm BIGINT,
-    price BIGINT,
+    price INT,
     plinth_area TEXT,
     floor BIGINT,
     description TEXT,
@@ -28,22 +26,22 @@ CREATE TABLE Plan (
 );
 
 CREATE TABLE Images (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     image_path TEXT,
-    image_name BIGINT,
-    plan_id BIGINT,
+    image_name TEXT,
+    plan_id INT,
     FOREIGN KEY (plan_id) REFERENCES Plan(id)
 );
 
 CREATE TABLE Features (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    description BIGINT
+    description TEXT
 );
 
 CREATE TABLE PlanFeatures (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    plan_id BIGINT,
-    feature_id BIGINT,
+    plan_id INT,
+    feature_id INT,
     FOREIGN KEY (plan_id) REFERENCES Plan(id),
     FOREIGN KEY (feature_id) REFERENCES Features(id)
 );

@@ -1,7 +1,11 @@
-const router = require("express").Router({ mergeParams: true });
-const controller = require("./auth.controller");
-const methodNotAllowed = require("../errors/methodNotAllowed");
+import { Router } from 'express';
+
+const router = Router({ mergeParams: true });
+
+import controller from "./auth.controller.js"
+
+import methodNotAllowed  from "../errors/methodNotAllowed.js"
 
 router.route("/").post(controller.create).all(methodNotAllowed);
 
-module.exports = router;
+export default router

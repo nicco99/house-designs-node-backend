@@ -1,32 +1,23 @@
-require('dotenv').config()
-const express = require("express");
+import dotenv from 'dotenv';
+import express from 'express';
+
+import cors from "cors"
+import morgan from "morgan"
+import categories from "./routes/categories.js"
+import plans from "./routes/plans.js"
+
 const app = express();
+dotenv.config();
 
-const fileupload = require('express-fileupload'); 
-const cors = require("cors");
-const morgan = require("morgan");
-const adminLoginRouter = require("./admin/auth.router");
-const adminRouter = require("./admin/admin.router");
-const PlansRouter = require("./plans/plans.router");
-const imagesRouter = require("./images/images.router");
-const contactsRouter = require("./contacts/contacts.router");
-const featuresRouter = require("./features/features.router");
-
-
-app.use(express.json({limit: '25mb'}));
-app.use(express.urlencoded({limit: '25mb'}));
+app.use(express.json({limit: '100mb'}));
+app.use(express.urlencoded({limit: '251mb'}));
 app.use(cors());
-app.use(fileupload({useTempFiles: true}))
 app.use(express.json());
 app.use(morgan("dev"));
-app.use("/plans", PlansRouter);
-app.use("/contact", contactsRouter);
-app.use("/images", imagesRouter);
-app.use("/features", featuresRouter);
-app.use("/login", adminLoginRouter);
-app.use("/admin", adminRouter);
+app.use("/plans", plans);
+app.use("/categories", categories);
 app.use((req, res, next) => {
-  next({ status: 404, message: `Not found: ${req.originalUrl}` });
+  next({ status: 404, message: `Route ${req.originalUrl} is not defined` });
 });
 
 app.use((error, req, res, next) => {
@@ -34,4 +25,4 @@ app.use((error, req, res, next) => {
   const { status = 500, message = "Something went wrong!" } = error;
   res.status(status).json({ error: message });
 });
-module.exports = app;
+export default app;

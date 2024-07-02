@@ -150,8 +150,6 @@ function destroy(designId) {
 module.exports = {
   list,
   read,
-  
   create,
   destroy,
-
 };
