@@ -1,44 +1,26 @@
-// const plansService = require("./plans.service");
-// const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
+import { createPlan, findAll,findOne, deletePlan,updatePlan } from '../model/plans.js'; 
 
-// async function planExists(req, res, next) {
-//   const plan = await plansService.read(req.params.planId);
-//   if (plan) {
-//     res.locals.plan = plan;
-//     return next();
-//   }
-//   next({ status: 404, message: `Plan cannot be found.` });
-// }
+export async function list(req, res, next) {
+    //get a list of all plans
+    return await findAll(req, res, next)
+}
 
+export async function read(req, res, next) { 
+    // Get a single plan by its ID
+    return await findOne(req, res, next)
+}
 
-// async function list(req, res) {
-//   const data = await plansService.list();
-//   res.json({ Plans: data});
-// }
+export async function create(req, res, next) {
+    // create a new plan
+    return await createPlan(req, res, next)
+}
 
-// function read(req, res, next) {
-//   const { plan } = res.locals;
-//   res.json({ plan: plan });
-// }
+export async function update(req, res, next) {
+      //update a plan by its ID Number
+    return await updatePlan(req, res, next)
+}
+export async function destroy(req, res, next) {
+    // Delete a plan by its ID
+    return await deletePlan(req, res, next)
+}
 
-// async function create(req, res) {
-//   const plan = await plansService.create(req.body);
-//   res.status(201).json({ plan });
-// }
-
-// async function destroy(req, res) {
-//   await plansService.destroy(res.locals.plan.id);
-//   res.sendStatus(204);
-// }
-
-
-
-
-
-// module.exports = {
-//   read: [asyncErrorBoundary(planExists), read],
-//   list: [asyncErrorBoundary(list)],
-//   destroy: [asyncErrorBoundary(planExists), asyncErrorBoundary(destroy)],
-//   create: [asyncErrorBoundary(create)],
-
-// };

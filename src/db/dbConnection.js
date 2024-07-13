@@ -12,8 +12,8 @@ const db = mysql.createConnection({
 // const db = mysql.createConnection({
 // host: "13.37.100.57",
 // user: "Nicco99", 
-// password: "Nicco@6612",
-// database: "INKWAVEDB",
+// password: "****",
+// database: "blif_investments_db",
 // });
 
 export default db
