@@ -3,41 +3,9 @@ import db from "../db/dbConnection.js";
 // method to get all plans from the database ...
 export const findAll = async (req, res, next) => {
 
-  const q = `
-  SELECT 
-    plans.id, 
-    plans.plan_size, 
-    plans.plan_name, 
-    plans.no_of_bedrooms, 
-    plans.no_of_bathrooms, 
-    plans.category_id,  
-    plans.price_per_sqm, 
-    plans.price, 
-    plans.plinth_area, 
-    plans.floors,
-    plans.plan_length,
-    plans.plan_height,   
-    images.id AS image_id, 
-    images.image_path AS path,
-    images.plan_id AS plan_id
-  FROM 
-    plans
-  JOIN 
-    planfeatures fp ON plans.id = fp.plan_id
-  JOIN 
-    features f ON fp.feature_id = f.id
-  LEFT JOIN 
-    images 
-  ON 
-    plans.id = images.plan_id
+  const q = `SELECT * FROM plans`;
 
-  GROUP BY
-    plans.id,
-    images.id,
-    f.description,
-    f.id
-`;
-         db.query(q, (err,data) => {
+    db.query(q, (err,data) => {
             if (err) {
                 res.status(500).json({ error: `Server error: ${error.message}` });
             }
