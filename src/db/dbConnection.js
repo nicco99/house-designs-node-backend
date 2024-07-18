@@ -12,7 +12,7 @@ const db = mysql.createConnection({
 // const db = mysql.createConnection({
 // host: "13.37.100.57",
 // user: "Nicco99", 
-// password: "****",
+// password: "Nicco@6612",
 // database: "blif_investments_db",
 // });
 

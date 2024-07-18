@@ -3,7 +3,41 @@ import db from "../db/dbConnection.js";
 // method to get all plans from the database ...
 export const findAll = async (req, res, next) => {
 
-        const q = `SELECT * FROM plans`;
+  const q = `
+  SELECT 
+    plans.id, 
+    plans.plan_size, 
+    plans.plan_name, 
+    plans.no_of_bedrooms, 
+    plans.no_of_bathrooms, 
+    plans.category_id, 
+    plans.class_of_finishes, 
+    plans.price_per_sqm, 
+    plans.price, 
+    plans.plinth_area, 
+    plans.floors,
+    plans.plan_length,
+    plans.plan_height,   
+    images.id AS image_id, 
+    images.image_path AS path,
+    images.plan_id AS plan_id
+  FROM 
+    plans
+  JOIN 
+    planfeatures fp ON plans.id = fp.plan_id
+  JOIN 
+    features f ON fp.feature_id = f.id
+  LEFT JOIN 
+    images 
+  ON 
+    plans.id = images.plan_id
+
+  GROUP BY
+    plans.id,
+    images.id,
+    f.description,
+    f.id
+`;
          db.query(q, (err,data) => {
             if (err) {
                 res.status(500).json({ error: `Server error: ${error.message}` });
@@ -19,24 +53,22 @@ export const findOne = async (req, res, next) => {
   
     const q = `
       SELECT 
-        plans.id AS plan_id, 
+        plans.id, 
         plans.plan_size, 
         plans.plan_name, 
         plans.no_of_bedrooms, 
         plans.no_of_bathrooms, 
         plans.category_id, 
         plans.class_of_finishes, 
-        plans.contract_type, 
         plans.price_per_sqm, 
         plans.price, 
         plans.plinth_area, 
-        plans.floor, 
-        plans.description, 
+        plans.floors,
+        plans.plan_length,
+        plans.plan_height,   
         images.id AS image_id, 
         images.image_path AS path,
-        images.plan_id AS plan_id,
-        f.description AS features,
-        f.id AS feature_id
+        images.plan_id AS plan_id
       FROM 
         plans
       JOIN 
@@ -101,10 +133,10 @@ export const findOne = async (req, res, next) => {
 // Method of Function to create a new plan in the database::::::
 
 export const createPlan = async (req, res, next) => {
-    const { plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,class_of_finishes,contract_type,price_per_sqm,price,plinth_area,floor, description } = req.body;
+    const { plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors, plan_height,plan_length } = req.body;
 
-    const q = `INSERT INTO plans(plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,class_of_finishes,contract_type,price_per_sqm,price,plinth_area,floor, description) VALUES(?)`;
-const values = [plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,class_of_finishes,contract_type,price_per_sqm,price,plinth_area,floor, description];
+    const q = `INSERT INTO plans(plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors, plan_height,plan_length) VALUES(?)`;
+const values = [plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors, plan_height,plan_length];
     try {
         const data = await new Promise((resolve, reject) => {
             db.query(q, [values], (err, result) => {
@@ -127,8 +159,8 @@ const values = [plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,c
 export const updatePlan = async (req, res, next) => {
     const { planId } = req.params;  
     const { name, description } = req.body;
-    const q = `UPDATE categories SET plan_size = ?,plan_name = ?,no_of_bedrooms = ?,no_of_bathrooms = ?,category_id = ?,class_of_finishes = ?,contract_type = ?,price_per_sqm = ?,price = ?,plinth_area = ?,floor = ?, description = ? WHERE id = ?`;
-    const values = [plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,class_of_finishes,contract_type,price_per_sqm,price,plinth_area,floor, description, planId];
+    const q = `UPDATE categories SET plan_size = ?,plan_name = ?,no_of_bedrooms = ?,no_of_bathrooms = ?,category_id = ?,price_per_sqm = ?,price = ?,plinth_area = ?,floors = ?,plan_height = ? , plan_length = ? WHERE id = ?`;
+    const values = [plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors,plan_height,plan_length, planId];
 
     try {
         const data = await new Promise((resolve, reject) => {
