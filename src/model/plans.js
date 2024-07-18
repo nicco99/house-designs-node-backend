@@ -9,7 +9,7 @@ export const findAll = async (req, res, next) => {
             if (err) {
                 res.status(500).json({ error: `Server error: ${error.message}` });
             }
-            res.status(200).json({ plans: data });
+            res.status(200).json({ plans: "data" });
          })
    
 };
