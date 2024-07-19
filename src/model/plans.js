@@ -43,83 +43,94 @@ export const findAll = async (req, res, next) => {
 
 //method to get a single plan from the database::::::
 export const findOne = async (req, res, next) => {
-    const { planId } = req.params;
-  
-    const q = `
-      SELECT 
-        plans.id, 
-        plans.plan_size, 
-        plans.plan_name, 
-        plans.no_of_bedrooms, 
-        plans.no_of_bathrooms, 
-        plans.category_id, 
-        plans.price_per_sqm, 
-        plans.price, 
-        plans.plinth_area, 
-        plans.floors,
-        plans.plan_length,
-        plans.plan_height,   
-        images.id AS image_id, 
-        images.image_path AS path,
-        images.plan_id AS plan_id
-      FROM 
-        plans
-      JOIN 
-        planfeatures fp ON plans.id = fp.plan_id
-      JOIN 
-        features f ON fp.feature_id = f.id
-      LEFT JOIN 
-        images 
-      ON 
-        plans.id = images.plan_id
-      WHERE 
-        plans.id = ?
-      GROUP BY
-        plans.id,
-        images.id,
-        f.description,
-        f.id
-    `;
+  const { planId } = req.params;
 
-  
-    db.query(q, [planId], (err, data) => {
-      if (err) {
-        return res.status(500).json({ error: `Server error: ${err.message}` });
+  const q = `
+    SELECT 
+      plans.id AS plan_id,
+      plans.plan_size,
+      plans.plan_name,
+      plans.no_of_bedrooms,
+      plans.no_of_bathrooms,
+      plans.category_id,
+      plans.price_per_sqm,
+      plans.price,
+      plans.plinth_area,
+      plans.floors,
+      plans.plan_length,
+      plans.plan_height,
+      images.id AS image_id,
+      images.image_path,
+      features.id AS feature_id,
+      features.description AS feature_description
+    FROM 
+      plans
+    LEFT JOIN 
+      images ON plans.id = images.plan_id
+    LEFT JOIN 
+      planfeatures ON plans.id = planfeatures.plan_id
+    LEFT JOIN 
+      features ON planfeatures.feature_id = features.id
+    WHERE 
+      plans.id = ?
+  `;
+
+  db.query(q, [planId], (err, data) => {
+    if (err) {
+      return res.status(500).json({ error: `Server error: ${err.message}` });
+    }
+
+    if (data.length === 0) {
+      return res.status(404).json({ error: 'Plan not found' });
+    }
+
+    const planMap = new Map();
+
+    data.forEach(row => {
+      const planId = row.plan_id;
+
+      if (!planMap.has(planId)) {
+        planMap.set(planId, {
+          id: row.plan_id,
+          plan_size: row.plan_size,
+          plan_name: row.plan_name,
+          no_of_bedrooms: row.no_of_bedrooms,
+          no_of_bathrooms: row.no_of_bathrooms,
+          category_id: row.category_id,
+          price_per_sqm: row.price_per_sqm,
+          price: row.price,
+          plinth_area: row.plinth_area,
+          floors: row.floors,
+          plan_length: row.plan_length,
+          plan_height: row.plan_height,
+          images: [],
+          features: []
+        });
       }
-  
-      if (data.length === 0) {
-        return res.status(404).json({ error: 'Plan not found' });
-      }
-  
-      const plan = {
-        id: data[0].plan_id,
-        plan_size: data[0].plan_size,
-        plan_name: data[0].plan_name,
-        no_of_bedrooms: data[0].no_of_bedrooms,
-        no_of_bathrooms: data[0].no_of_bathrooms,
-        category_id: data[0].category_id,
-        contract_type: data[0].contract_type,
-        price_per_sqm: data[0].price_per_sqm,
-        price: data[0].price,
-        plinth_area: data[0].plinth_area,
-        floor: data[0].floor,
-        description: data[0].description,
-        images: data.filter(row => row.id !== null).map(row => ({
+
+      const plan = planMap.get(planId);
+
+      if (row.image_path) {
+        plan.images.push({
           id: row.image_id,
-          image_path: row.path,
-          plan_id: row.plan_id
-        })),
-        features: data.filter(row => row.id !== null).map(row => ({
-            id: row.feature_id,
-            description: row.features
-          }))
+          image_path: row.image_path
+        });
+      }
 
-
-      };
-  
-      res.status(200).json({ plan });
+      if (row.feature_id) {
+        plan.features.push({
+          id: row.feature_id,
+          description: row.feature_description
+        });
+      }
     });
-  };
+
+    const [plan] = Array.from(planMap.values());
+
+    res.status(200).json({ plan });
+  });
+};
+
   
 
 // Method of Function to create a new plan in the database::::::
