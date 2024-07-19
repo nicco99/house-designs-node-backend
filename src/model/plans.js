@@ -26,7 +26,7 @@ export const findAll = async (req, res, next) => {
 
       const plan = plansMap.get(planId);
 
-      if (row.image_path && row.image_name) {
+      if (row.image_path) {
         plan.images.push({
           image_path: row.image_path
         });
