@@ -2,7 +2,7 @@ import db from "../db/dbConnection.js";
 
 // method to get all plans from the database ...
 export const findAll = async (req, res, next) => {
-  const q = `SELECT plans.*
+  const q = `SELECT plans.id AS plan_id, plans.*, images.image_path, images.image_name 
              FROM plans 
              LEFT JOIN images 
              ON plans.id = images.plan_id;`;
@@ -26,10 +26,10 @@ export const findAll = async (req, res, next) => {
 
       const plan = plansMap.get(planId);
 
-      if (row.image_path) {
+      if (row.image_path && row.image_name) {
         plan.images.push({
           image_path: row.image_path,
-          plan_id: row.plan_id
+          image_name: row.image_name
         });
       }
     });
@@ -39,6 +39,7 @@ export const findAll = async (req, res, next) => {
     res.status(200).json({ plans });
   });
 };
+
 
 
 //method to get a single plan from the database::::::
