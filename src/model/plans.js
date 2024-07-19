@@ -28,7 +28,8 @@ export const findAll = async (req, res, next) => {
 
       if (row.image_path) {
         plan.images.push({
-          image_path: row.image_path
+          image_path: row.image_path,
+          plan_id: row.plan_id
         });
       }
     });
