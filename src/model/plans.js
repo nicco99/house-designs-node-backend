@@ -2,17 +2,44 @@ import db from "../db/dbConnection.js";
 
 // method to get all plans from the database ...
 export const findAll = async (req, res, next) => {
+  const q = `SELECT plans.plan_id, plans.*, images.image_path, images.image_name 
+             FROM plans 
+             LEFT JOIN images 
+             ON plans.plan_id = images.plan_id;`;
 
-  const q = `SELECT * FROM plans`;
+  db.query(q, (err, data) => {
+    if (err) {
+      return res.status(500).json({ error: `Server error: ${err.message}` });
+    }
 
-    db.query(q, (err,data) => {
-            if (err) {
-                res.status(500).json({ error: `Server error: ${error.message}` });
-            }
-            res.status(200).json({ plans: data });
-         })
-   
+    const plansMap = new Map();
+
+    data.forEach(row => {
+      const planId = row.plan_id;
+
+      if (!plansMap.has(planId)) {
+        plansMap.set(planId, {
+          ...row,
+          images: []
+        });
+      }
+
+      const plan = plansMap.get(planId);
+
+      if (row.image_path && row.image_name) {
+        plan.images.push({
+          image_path: row.image_path,
+          image_name: row.image_name
+        });
+      }
+    });
+
+    const plans = Array.from(plansMap.values());
+
+    res.status(200).json({ plans });
+  });
 };
+
 
 //method to get a single plan from the database::::::
 export const findOne = async (req, res, next) => {
