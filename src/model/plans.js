@@ -105,36 +105,37 @@ export const findOne = async (req, res, next) => {
           plan_length: row.plan_length,
           plan_height: row.plan_height,
           description: row.description,
-          images: new Set(),
-          features: new Set()
+          images: new Map(),
+          features: new Map()
         });
       }
 
       const plan = planMap.get(planId);
 
-      if (row.image_path) {
-        plan.images.add({
+      if (row.image_id && !plan.images.has(row.image_id)) {
+        plan.images.set(row.image_id, {
           id: row.image_id,
           image_path: row.image_path
         });
       }
 
-      if (row.feature_id) {
-        plan.features.add({
+      if (row.feature_id && !plan.features.has(row.feature_id)) {
+        plan.features.set(row.feature_id, {
           id: row.feature_id,
           description: row.feature_description
         });
       }
     });
 
-    // Convert Sets to Arrays
+    // Convert Maps to Arrays
     const [plan] = Array.from(planMap.values());
-    plan.images = Array.from(plan.images);
-    plan.features = Array.from(plan.features);
+    plan.images = Array.from(plan.images.values());
+    plan.features = Array.from(plan.features.values());
 
     res.status(200).json({ plan });
   });
 };
+
 
 
   
