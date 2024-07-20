@@ -11,7 +11,7 @@ export async function read(req, res, next) {
 }
 
 export async function create(image_path,plan_id,res) {
-    // create a new category
+    // create a new imAGE
     createImage(image_path,plan_id,res)
 }
 

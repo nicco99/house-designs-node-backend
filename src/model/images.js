@@ -30,7 +30,7 @@ export const findOne = async (req, res, next) => {
 // Method of Function to create a new category in the database::::::
 
 export const createImage = async (image_path,plan_id,res) => {
-console.log(image_path,plan_id)
+
     const q = `INSERT INTO images(image_path,plan_id) VALUES(?)`;
 const values = [image_path,plan_id];
     try {

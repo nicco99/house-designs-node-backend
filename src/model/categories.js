@@ -23,7 +23,7 @@ export const findOne = async (req, res, next) => {
         if (err) {
             res.status(500).json({ error: `Server error: ${err.message}` });
         }
-        res.status(200).json({ category: data });
+        res.status(200).json({ category: data[0] });
     })
 };
 
