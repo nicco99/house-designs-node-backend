@@ -117,7 +117,7 @@ export const findOne = async (req, res, next) => {
         });
       }
 
-      if (row.feature_id && !row.includes(row.id)) {
+      if (row.feature_id) {
         plan.features.push({
           id: row.feature_id,
           description: row.feature_description
