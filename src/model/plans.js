@@ -104,7 +104,7 @@ export const findOne = async (req, res, next) => {
           floors: row.floors,
           plan_length: row.plan_length,
           plan_height: row.plan_height,
-          plan_height: row.description,
+          description: row.description,
           images: [],
           features: []
         });
