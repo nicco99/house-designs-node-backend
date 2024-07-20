@@ -59,6 +59,7 @@ export const findOne = async (req, res, next) => {
       plans.floors,
       plans.plan_length,
       plans.plan_height,
+      plans.description,
       images.id AS image_id,
       images.image_path,
       features.id AS feature_id,
@@ -103,6 +104,7 @@ export const findOne = async (req, res, next) => {
           floors: row.floors,
           plan_length: row.plan_length,
           plan_height: row.plan_height,
+          plan_height: row.description,
           images: [],
           features: []
         });
@@ -136,10 +138,10 @@ export const findOne = async (req, res, next) => {
 // Method of Function to create a new plan in the database::::::
 
 export const createPlan = async (req, res, next) => {
-    const { plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors, plan_height,plan_length } = req.body;
+    const { plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors, plan_height,plan_length,description } = req.body;
 
-    const q = `INSERT INTO plans(plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors, plan_height,plan_length) VALUES(?)`;
-const values = [plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors, plan_height,plan_length];
+    const q = `INSERT INTO plans(plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors, plan_height,plan_length,description) VALUES(?)`;
+const values = [plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors, plan_height,plan_length,description];
     try {
         const data = await new Promise((resolve, reject) => {
             db.query(q, [values], (err, result) => {
@@ -161,7 +163,7 @@ const values = [plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,p
 
 export const updatePlan = async (req, res, next) => {
     const { planId } = req.params;  
-    const { name, description } = req.body;
+    const { plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors,plan_height,plan_length } = req.body;
     const q = `UPDATE categories SET plan_size = ?,plan_name = ?,no_of_bedrooms = ?,no_of_bathrooms = ?,category_id = ?,price_per_sqm = ?,price = ?,plinth_area = ?,floors = ?,plan_height = ? , plan_length = ? WHERE id = ?`;
     const values = [plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors,plan_height,plan_length, planId];
 
