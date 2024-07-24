@@ -2,21 +2,10 @@ import db from "../db/dbConnection.js";
 
 // method to get all plans from the database ...
 export const findAll = async (req, res, next) => {
-  const q = `SELECT 
-    plans.id AS plan_id, 
-    plans.*, 
-    COALESCE(
-        JSON_AGG(images.image_path) FILTER (WHERE images.image_path IS NOT NULL), 
-        '[]'
-    ) AS images
-FROM 
-    plans
-LEFT JOIN 
-    images 
-ON 
-    plans.id = images.plan_id
-GROUP BY 
-    plans.id;`;
+  const q = `SELECT plans.id AS plan_id, plans.*, images.image_path
+             FROM plans 
+             LEFT JOIN images 
+             ON plans.id = images.plan_id;`;
 
   db.query(q, (err, data) => {
     if (err) {
