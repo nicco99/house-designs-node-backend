@@ -10,9 +10,9 @@ export async function read(req, res, next) {
     return await findOne(req, res, next)
 }
 
-export async function create(image_path,plan_id,res) {
+export async function create(image_path,plan_id,name,res) {
     // create a new imAGE
-    createImage(image_path,plan_id,res)
+    createImage(image_path,plan_id,name,res)
 }
 
 export async function update(req, res, next) {

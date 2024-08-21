@@ -1,85 +1,73 @@
 import db from "../db/dbConnection.js";
 
-// method to get all categories from the database ...
+// Method to get all categories (features) from the database
 export const findAll = async (req, res, next) => {
-
-        const q = `SELECT * FROM features`;
-         db.query(q, (err,data) => {
-            if (err) {
-                res.status(500).json({ error: `Server error: ${error.message}` });
-            }
-            res.status(200).json({ features: data });
-         })
-   
-};
-
-//method to get a single category from the database::::::
-export const findOne = async (req, res, next) => {
-    const { planId } = req.params;
-
-    const q = `
-        SELECT 
-            p.*, 
-        f.feature_id
-        FROM plans p
-        LEFT JOIN planfeatures f ON p.id = f.plan_id
-        WHERE f.plan_id = ?
-        GROUP BY p.id
-    `;
-
-    db.query(q, [planId], (err, data) => {
+    const q = `SELECT * FROM features`;
+    db.all(q, [], (err, data) => {
         if (err) {
             res.status(500).json({ error: `Server error: ${err.message}` });
-        } else if (data.length === 0) {
-            res.status(404).json({ error: 'Plan not found' });
         } else {
-            res.status(200).json({ plan: data[0] });
+            res.status(200).json({ features: data });
         }
     });
 };
 
-// Method of Function to create a new category in the database::::::
+// Method to get a single category (plan) by plan ID
+export const findOne = async (req, res, next) => {
+    const { featureId } = req.params;
+    const q = `
+        SELECT * FROM features WHERE id = ?`;
+    db.get(q, [featureId], (err, data) => {
+        if (err) {
+            res.status(500).json({ error: `Server error: ${err.message}` });
+        } else if (!data) {
+            res.status(404).json({ error: 'Feature not found' });
+        } else {
+            res.status(200).json({ plan: data });
+        }
+    });
+};
 
+// Method to create a new feature in the database
 export const createFeature = async (req, res, next) => {
     const { description } = req.body;
-    const q = `INSERT INTO features (description) VALUES(?)`;
-const values = [description];
+    const q = `INSERT INTO features (description) VALUES (?)`;
+
     try {
-        const data = await new Promise((resolve, reject) => {
-            db.query(q, [values], (err, result) => {
+        const result = await new Promise((resolve, reject) => {
+            db.run(q, [description], function (err) {
                 if (err) {
                     reject(err);
+                } else {
+                    resolve({ id: this.lastID });
                 }
-                resolve(result);
             });
         });
 
-        res.status(201).json({ feature: data });
+        res.status(201).json({ feature: result });
     } catch (err) {
-        res.status(500).json({ error: `Server error: ${err}` });
+        res.status(500).json({ error: `Server error: ${err.message}` });
     }
 };
 
-
-//method to update a category provided its ID:::
-
+// Method to update a feature by ID
 export const updateFeature = async (req, res, next) => {
-    const { featureId } = req.params;  
+    const { featureId } = req.params;
     const { description } = req.body;
     const q = `UPDATE features SET description = ? WHERE id = ?`;
-    const values = [description, featureId];
 
     try {
-        const data = await new Promise((resolve, reject) => {
-            db.query(q, values, (err, result) => {
+        const result = await new Promise((resolve, reject) => {
+            db.run(q, [description, featureId], function (err) {
                 if (err) {
                     reject(err);
+                } else {
+                    resolve({ changes: this.changes });
                 }
-                resolve(result);
             });
         });
 
-        if (data.affectedRows === 0) {
+        if (result.changes === 0) {
             res.status(404).json({ error: 'Feature not found' });
         } else {
             res.status(200).json({ message: 'Feature updated successfully' });
@@ -89,22 +77,23 @@ export const updateFeature = async (req, res, next) => {
     }
 };
 
-//method to delete a category provided its ID:::
+// Method to delete a feature by ID
 export const destroyFeature = async (req, res, next) => {
-    const { featureId } = req.params; // Assuming the category ID is passed as a URL parameter
+    const { featureId } = req.params;
     const q = `DELETE FROM features WHERE id = ?`;
 
     try {
-        const data = await new Promise((resolve, reject) => {
-            db.query(q, [featureId], (err, result) => {
+        const result = await new Promise((resolve, reject) => {
+            db.run(q, [featureId], function (err) {
                 if (err) {
                     reject(err);
+                } else {
+                    resolve({ changes: this.changes });
                 }
-                resolve(result);
             });
         });
 
-        if (data.affectedRows === 0) {
+        if (result.changes === 0) {
             res.status(404).json({ error: 'Feature not found' });
         } else {
             res.status(200).json({ message: 'Feature deleted successfully' });
@@ -113,4 +102,3 @@ export const destroyFeature = async (req, res, next) => {
         res.status(500).json({ error: `Server error: ${err.message}` });
     }
 };
-
