@@ -67,7 +67,7 @@ app.post('/upload', (req, res) => {
       if (req.file == undefined) {
         res.status(400).json({ error: 'No file selected' });
       } else {
-        create(`uploads/${req.file.filename}`,req.body.plan_id,res)
+        create(`uploads/${req.file.filename}`,req.body.plan_id,req.file.filename,res)
       }
     }
   });

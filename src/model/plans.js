@@ -1,20 +1,21 @@
 import db from "../db/dbConnection.js";
 
-// method to get all plans from the database ...
-export const findAll = async (req, res, next) => {
+//method to get a all plans from the database::::::
+
+export const findAll = (req, res, next) => {
   const q = `SELECT plans.id AS plan_id, plans.*, images.image_path
              FROM plans 
              LEFT JOIN images 
              ON plans.id = images.plan_id;`;
 
-  db.query(q, (err, data) => {
+  db.all(q, [], (err, rows) => {
     if (err) {
       return res.status(500).json({ error: `Server error: ${err.message}` });
     }
 
     const plansMap = new Map();
 
-    data.forEach(row => {
+    rows.forEach(row => {
       const planId = row.plan_id;
 
       if (!plansMap.has(planId)) {
@@ -39,10 +40,8 @@ export const findAll = async (req, res, next) => {
   });
 };
 
-
-
 //method to get a single plan from the database::::::
-export const findOne = async (req, res, next) => {
+export const findOne = (req, res, next) => {
   const { planId } = req.params;
 
   const q = `
@@ -76,18 +75,18 @@ export const findOne = async (req, res, next) => {
       plans.id = ?
   `;
 
-  db.query(q, [planId], (err, data) => {
+  db.all(q, [planId], (err, rows) => {
     if (err) {
       return res.status(500).json({ error: `Server error: ${err.message}` });
     }
 
-    if (data.length === 0) {
+    if (rows.length === 0) {
       return res.status(404).json({ error: 'Plan not found' });
     }
 
     const planMap = new Map();
 
-    data.forEach(row => {
+    rows.forEach(row => {
       const planId = row.plan_id;
 
       if (!planMap.has(planId)) {
@@ -136,84 +135,82 @@ export const findOne = async (req, res, next) => {
   });
 };
 
-
-
-  
-
-// Method of Function to create a new plan in the database::::::
-
 export const createPlan = async (req, res, next) => {
-    const { plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors, plan_height,plan_length,description } = req.body;
+  const { plan_size, plan_name, no_of_bedrooms, no_of_bathrooms, category_id, price_per_sqm, price, plinth_area, floors, plan_height, plan_length, description } = req.body;
 
-    const q = `INSERT INTO plans(plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors, plan_height,plan_length,description) VALUES(?)`;
-const values = [plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors, plan_height,plan_length,description];
-    try {
-        const data = await new Promise((resolve, reject) => {
-            db.query(q, [values], (err, result) => {
-                if (err) {
-                    reject(err);
-                }
-                resolve(result);
-            });
-        });
+  const q = `INSERT INTO plans(plan_size, plan_name, no_of_bedrooms, no_of_bathrooms, category_id, price_per_sqm, price, plinth_area, floors, plan_height, plan_length, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const values = [plan_size, plan_name, no_of_bedrooms, no_of_bathrooms, category_id, price_per_sqm, price, plinth_area, floors, plan_height, plan_length, description];
 
-        res.status(201).json({ plan: data });
-    } catch (err) {
-        res.status(500).json({ error: `Server error: ${err}` });
-    }
+  try {
+    const result = await new Promise((resolve, reject) => {
+      db.run(q, values, function (err) {
+        if (err) {
+          return reject(err);
+        }
+        resolve({ id: this.lastID });
+      });
+    });
+
+    res.status(201).json({ plan: result });
+  } catch (err) {
+    res.status(500).json({ error: `Server error: ${err.message}` });
+  }
 };
 
 
 //method to update a plan provided its ID:::
-
 export const updatePlan = async (req, res, next) => {
-    const { planId } = req.params;  
-    const { plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors,plan_height,plan_length } = req.body;
-    const q = `UPDATE categories SET plan_size = ?,plan_name = ?,no_of_bedrooms = ?,no_of_bathrooms = ?,category_id = ?,price_per_sqm = ?,price = ?,plinth_area = ?,floors = ?,plan_height = ? , plan_length = ? WHERE id = ?`;
-    const values = [plan_size,plan_name,no_of_bedrooms,no_of_bathrooms,category_id,price_per_sqm,price,plinth_area,floors,plan_height,plan_length, planId];
+  const { planId } = req.params;
+  const { plan_size, plan_name, no_of_bedrooms, no_of_bathrooms, category_id, price_per_sqm, price, plinth_area, floors, plan_height, plan_length } = req.body;
 
-    try {
-        const data = await new Promise((resolve, reject) => {
-            db.query(q, values, (err, result) => {
-                if (err) {
-                    reject(err);
-                }
-                resolve(result);
-            });
-        });
+  const q = `UPDATE plans SET plan_size = ?, plan_name = ?, no_of_bedrooms = ?, no_of_bathrooms = ?, category_id = ?, price_per_sqm = ?, price = ?, plinth_area = ?, floors = ?, plan_height = ?, plan_length = ? WHERE id = ?`;
+  const values = [plan_size, plan_name, no_of_bedrooms, no_of_bathrooms, category_id, price_per_sqm, price, plinth_area, floors, plan_height, plan_length, planId];
 
-        if (data.affectedRows === 0) {
-            res.status(404).json({ error: 'Plan not found' });
-        } else {
-            res.status(200).json({ message: 'Plan updated successfully' });
+  try {
+    const result = await new Promise((resolve, reject) => {
+      db.run(q, values, function (err) {
+        if (err) {
+          return reject(err);
         }
-    } catch (err) {
-        res.status(500).json({ error: `Server error: ${err.message}` });
+        resolve({ changes: this.changes });
+      });
+    });
+
+    if (result.changes === 0) {
+      res.status(404).json({ error: 'Plan not found' });
+    } else {
+      res.status(200).json({ message: 'Plan updated successfully' });
     }
+  } catch (err) {
+    res.status(500).json({ error: `Server error: ${err.message}` });
+  }
 };
+
 
 //method to delete a plan provided its ID:::
 export const deletePlan = async (req, res, next) => {
-    const { planId } = req.params; 
-    const q = `DELETE FROM plans WHERE id = ?`;
+  const { planId } = req.params;
+  const q = `DELETE FROM plans WHERE id = ?`;
 
-    try {
-        const data = await new Promise((resolve, reject) => {
-            db.query(q, [planId], (err, result) => {
-                if (err) {
-                    reject(err);
-                }
-                resolve(result);
-            });
-        });
-
-        if (data.affectedRows === 0) {
-            res.status(404).json({ error: 'Plan not found' });
-        } else {
-            res.status(200).json({ message: 'Plan deleted successfully' });
+  try {
+    const result = await new Promise((resolve, reject) => {
+      db.run(q, [planId], function (err) {
+        if (err) {
+          return reject(err);
         }
-    } catch (err) {
-        res.status(500).json({ error: `Server error: ${err.message}` });
+        resolve({ changes: this.changes });
+      });
+    });
+
+    if (result.changes === 0) {
+      res.status(404).json({ error: 'Plan not found' });
+    } else {
+      res.status(200).json({ message: 'Plan deleted successfully' });
     }
+  } catch (err) {
+    res.status(500).json({ error: `Server error: ${err.message}` });
+  }
 };
+
+
 
